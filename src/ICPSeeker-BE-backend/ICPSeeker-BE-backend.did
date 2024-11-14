@@ -1,3 +1,118 @@
+type AuthInfo = record {
+    principal_id: principal;
+    session_created_at: nat64;
+    last_active: nat64;
+};
+
+type ValidationResult = record {
+    is_valid: bool;
+    error_message: opt text;
+};
+
+type JobSeekerIC = record {
+    principal_id: principal;
+    name: text;
+    email: text;
+    phone_number: text;
+    auth_info: AuthInfo;
+    is_profile_complete: bool;
+    created_at: nat64;
+    updated_at: nat64;
+};
+
+type JobSeekerPG = record {
+    principal_id: principal;
+    cv_data: vec nat8;
+    linkedin_url: opt text;
+    portfolio_url: opt text;
+    current_job_title: opt text;
+    years_of_experience: opt nat32;
+    education: opt Education;
+    skills: opt vec text;
+    expected_salary: opt float64;
+    preferred_location: opt text;
+    job_type: opt JobType;
+    work_type: opt WorkType;
+    bank_account: opt BankAccount;
+};
+
+type JobType = variant {
+    FullTime;
+    PartTime;
+    Contract;
+    Internship;
+};
+
+type WorkType = variant {
+    Remote;
+    Hybrid;
+    Onsite;
+};
+
+type EducationLevel = variant {
+    HighSchool;
+    Diploma;
+    Bachelor;
+    Master;
+    Doctorate;
+    Other;
+};
+
+type BankAccount = record {
+    bank_name: text;
+    account_number: text;
+    account_holder_name: text;
+};
+
+type Education = record {
+    level: EducationLevel;
+    institution: text;
+    major: text;
+    graduation_year: nat32;
+};
+
+type CreateProfilePayload = record {
+    name: text;
+    email: text;
+    phone_number: text;
+};
+
+type UpdateProfilePayload = record {
+    linkedin_url: opt text;
+    portfolio_url: opt text;
+    current_job_title: opt text;
+    years_of_experience: opt nat32;
+    education: opt Education;
+    skills: opt vec text;
+    expected_salary: opt float64;
+    preferred_location: opt text;
+    job_type: opt JobType;
+    work_type: opt WorkType;
+    bank_account: opt BankAccount;
+};
+
+type AuthResponse = variant {
+    Success: AuthInfo;
+    InvalidSession;
+    NotAuthenticated;
+};
+
+type ProfileResponse = variant {
+    Success: JobSeekerIC;
+    NotFound;
+    AlreadyExists;
+    ValidationError: text;
+    DatabaseError: text;
+    AuthenticationError: text;
+};
+
 service : {
-    "greet": (text) -> (text) query;
-}
+    // Auth endpoints
+    "init_auth": () -> (AuthResponse);
+    "verify_auth": () -> (bool) query;
+    
+    // Profile endpoints (now requires authentication)
+    "create_profile": (CreateProfilePayload) -> (ProfileResponse);
+    "get_profile": () -> (ProfileResponse) query;
+    "update_profile": (UpdateProfilePayload) -> (ProfileResponse);
+};
