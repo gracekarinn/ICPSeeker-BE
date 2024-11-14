@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "ICPSeeker-BE-backend": {
+      "candid": "src/ICPSeeker-BE-backend/ICPSeeker-BE-backend.did",
+      "package": "ICPSeeker-BE-backend",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

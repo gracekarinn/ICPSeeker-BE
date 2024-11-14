@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/ICPSeeker-BE-backend"
+]
+resolver = "2"
