@@ -11,8 +11,22 @@ thread_local! {
 pub async fn create_profile(payload: CreateProfilePayload) -> ProfileResponse {
     let caller = ic_cdk::caller();
     
-    if !payload.email.contains('@') {
-        return ProfileResponse::ValidationError("Invalid email format".to_string());
+    if !auth_service::verify_session(caller) {
+        return ProfileResponse::ValidationError("Authentication required".to_string());
+    }
+
+    let email_validation = validate_email(&payload.email);
+    if !email_validation.is_valid {
+        return ProfileResponse::ValidationError(
+            email_validation.error_message.unwrap_or("Invalid email".to_string())
+        );
+    }
+
+    let phone_validation = validate_phone(&payload.phone_number);
+    if !phone_validation.is_valid {
+        return ProfileResponse::ValidationError(
+            phone_validation.error_message.unwrap_or("Invalid phone".to_string())
+        );
     }
 
     JOB_SEEKERS.with(|job_seekers| {
